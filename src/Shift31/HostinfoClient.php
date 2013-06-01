@@ -2,28 +2,29 @@
 
 namespace Shift31;
 
-
+/**
+ * Class HostinfoClient
+ *
+ * @package Shift31
+ */
 class HostinfoClient
 {
-    private $_hostinfoHost;
-    private $_hostinfoBaseUrl;
     private $_hostinfoUrl;
 
 	protected $logger;
 
-    private $_batchQueries;
+    private $_batchQueries = array();
 
-    
-    public function __construct($host, $baseUrl, $logger = null)
+
+    /**
+     * @param string    $baseUrl    The base URL endpoint for the hostinfo web service  (i.e. http://hostinfo.example.com/hostinfo)
+     * @param null      $logger     An optional instance of a logger class such as Monolog or Zend_Log
+     */
+    public function __construct($baseUrl, $logger = null)
     {
-        $this->_hostinfoHost = $host;
-        $this->_hostinfoBaseUrl = $baseUrl;
-        
-        $this->_hostinfoUrl = 'http://' . $this->_hostinfoHost . $this->_hostinfoBaseUrl . '/csv';
+        $this->_hostinfoUrl = $baseUrl . '/csv';
 
 		$this->_logger = $logger;
-
-        $this->_batchQueries = array();
     }
     
     

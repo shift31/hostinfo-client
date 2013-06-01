@@ -128,7 +128,7 @@ class HostinfoClient
 
     
     /**
-     * @param string    $stringOfQueries
+     * @param string    $stringOfQueries    a comma-separated list of hostinfo queries containing pipe-separated (|) expressions
      * @return HostinfoClient
      */
     public function setBatchQueries($stringOfQueries)

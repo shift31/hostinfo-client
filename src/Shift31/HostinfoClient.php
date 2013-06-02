@@ -9,27 +9,28 @@ namespace Shift31;
  */
 class HostinfoClient
 {
-    private $_hostinfoUrl;
+    protected $_hostinfoUrl;
 
-	protected $logger;
+    protected $_logger;
 
-    private $_batchQueries = array();
+    protected $_batchQueries = array();
 
 
     /**
-     * @param string    $baseUrl    The base URL endpoint for the hostinfo web service  (i.e. http://hostinfo.example.com/hostinfo)
-     * @param null      $logger     An optional instance of a logger class such as Monolog or Zend_Log
+     * @param string $baseUrl    The base URL endpoint for the hostinfo web service  (i.e. http://hostinfo.example.com/hostinfo)
+     * @param null   $logger     An optional instance of a logger class such as Monolog or Zend_Log
      */
     public function __construct($baseUrl, $logger = null)
     {
         $this->_hostinfoUrl = $baseUrl . '/csv';
 
-		$this->_logger = $logger;
+        $this->_logger = $logger;
     }
-    
-    
+
+
     /**
      * @param $exprs
+     *
      * @return array $hosts
      * @throws \Exception
      */
@@ -42,18 +43,18 @@ class HostinfoClient
         $hostinfoUrl = $this->_hostinfoUrl;
 
         // expressions are always ANDed together, hostinfo does not currently support ORing expressions
-        foreach($exprs as $expr) {
-            $hostinfoUrl .= "/$expr"; 
+        foreach ($exprs as $expr) {
+            $hostinfoUrl .= "/$expr";
         }
-        
+
         $hosts = array();
-        
+
         // read entire file into an array
         try {
             $this->_log('debug', "Hostinfo URL: $hostinfoUrl");
-            
+
             $lines = file($hostinfoUrl);
-            
+
             //$this->_log('debug', print_r('$lines = ' . $lines, true));
 
             if (is_array($lines)) {
@@ -65,21 +66,23 @@ class HostinfoClient
                 }
 
                 foreach ($lines as $line) {
-                    if (preg_match('/hostname/', $line)) continue;
+                    if (preg_match('/hostname/', $line)) {
+                        continue;
+                    }
 
                     $csv = str_getcsv($line);
 
-                    for($i = 0; $i < count($csv); $i++) {
-                        $hosts[$csv[0]][$header[$i]] = $csv[$i]; 
+                    for ($i = 0; $i < count($csv); $i++) {
+                        $hosts[$csv[0]][$header[$i]] = $csv[$i];
                     }
-                }    
+                }
             }
         } catch (\Exception $e) {
             $this->_log('crit', 'Exception: ' . $e->getCode() . ' - ' . $e->getMessage());
         }
-        
+
         //$this->_log('debug', '$hosts = ' . print_r($hosts, true));
-        
+
         return $hosts;
     }
 
@@ -108,7 +111,7 @@ class HostinfoClient
             ),
         );
         */
-        
+
         $servers = array();
 
         $results = array();
@@ -117,18 +120,19 @@ class HostinfoClient
             $results[] = $this->search($exprs);
         }
 
-        foreach($results as $hosts) {
+        foreach ($results as $hosts) {
             foreach ($hosts as $host) {
                 $servers[] = $host;
-            }   
+            }
         }
 
         return $servers;
     }
 
-    
+
     /**
-     * @param string    $stringOfQueries    a comma-separated list of hostinfo queries containing pipe-separated (|) expressions
+     * @param string $stringOfQueries    a comma-separated list of hostinfo queries containing pipe-separated (|) expressions
+     *
      * @return HostinfoClient
      */
     public function setBatchQueries($stringOfQueries)
@@ -145,23 +149,23 @@ class HostinfoClient
         foreach ($queries as $exprs) {
             $batch[] = explode('|', $exprs);
         }
-        
+
         $this->_batchQueries = $batch;
 
         return $this;
     }
 
 
-	/**
-	 *
-	 * @param string $priority
-	 * @param string $message
-	 */
-	protected function _log($priority, $message)
-	{
-		if ($this->_logger != null) {
-			$class = str_replace(__NAMESPACE__ . "\\", '', get_called_class());
-			$this->_logger->$priority("[$class] - $message");
-		}
-	}
+    /**
+     *
+     * @param string $priority
+     * @param string $message
+     */
+    protected function _log($priority, $message)
+    {
+        if ($this->_logger != null) {
+            $class = str_replace(__NAMESPACE__ . "\\", '', get_called_class());
+            $this->_logger->$priority("[$class] - $message");
+        }
+    }
 }
